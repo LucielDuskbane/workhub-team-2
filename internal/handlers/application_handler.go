@@ -20,9 +20,19 @@ func NewApplicationHandler() *ApplicationHandler {
 	}
 }
 
+// Apply Job godoc
+// @Summary Apply to job
+// @Description Jobseeker apply job
+// @Tags Applications
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Job ID"
+// @Success 201 {object} map[string]interface{}
+// @Router /jobs/{id}/apply [post]
 func (h *ApplicationHandler) ApplyJob(
 	c *gin.Context,
 ) {
+
 	idParam := c.Param("id")
 
 	jobID, err :=
@@ -68,9 +78,18 @@ func (h *ApplicationHandler) ApplyJob(
 	)
 }
 
+// Get My Applications godoc
+// @Summary Get my applications
+// @Description Jobseeker get own applications
+// @Tags Applications
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /applications/me [get]
 func (h *ApplicationHandler) GetMyApplications(
 	c *gin.Context,
 ) {
+
 	userID := c.MustGet(
 		"user_id",
 	).(uint)
@@ -98,9 +117,19 @@ func (h *ApplicationHandler) GetMyApplications(
 	)
 }
 
+// Get Job Applications godoc
+// @Summary Get job applications
+// @Description Employer get applicants
+// @Tags Applications
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Job ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /jobs/{id}/applications [get]
 func (h *ApplicationHandler) GetJobApplications(
 	c *gin.Context,
 ) {
+
 	idParam := c.Param("id")
 
 	jobID, err :=
@@ -119,17 +148,22 @@ func (h *ApplicationHandler) GetJobApplications(
 		return
 	}
 
+	userID := c.MustGet(
+		"user_id",
+	).(uint)
+
 	applications, err :=
 		h.applicationService.
 			GetJobApplications(
 				uint(jobID),
+				userID,
 			)
 
 	if err != nil {
 		utils.ErrorResponse(
 			c,
-			http.StatusInternalServerError,
-			"Failed get applications",
+			http.StatusForbidden,
+			err.Error(),
 		)
 		return
 	}
@@ -142,9 +176,21 @@ func (h *ApplicationHandler) GetJobApplications(
 	)
 }
 
+// Update Application Status godoc
+// @Summary Update application status
+// @Description Employer accept/reject applicant
+// @Tags Applications
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Application ID"
+// @Param request body dto.UpdateApplicationRequest true "Update Status"
+// @Success 200 {object} map[string]interface{}
+// @Router /applications/{id} [patch]
 func (h *ApplicationHandler) UpdateApplicationStatus(
 	c *gin.Context,
 ) {
+
 	idParam := c.Param("id")
 
 	id, err :=
@@ -165,7 +211,10 @@ func (h *ApplicationHandler) UpdateApplicationStatus(
 
 	var req dto.UpdateApplicationRequest
 
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindJSON(
+		&req,
+	); err != nil {
+
 		utils.ErrorResponse(
 			c,
 			http.StatusBadRequest,
@@ -174,16 +223,21 @@ func (h *ApplicationHandler) UpdateApplicationStatus(
 		return
 	}
 
+	userID := c.MustGet(
+		"user_id",
+	).(uint)
+
 	err = h.applicationService.
 		UpdateApplicationStatus(
 			uint(id),
+			userID,
 			req,
 		)
 
 	if err != nil {
 		utils.ErrorResponse(
 			c,
-			http.StatusBadRequest,
+			http.StatusForbidden,
 			err.Error(),
 		)
 		return

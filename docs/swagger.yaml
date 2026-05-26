@@ -1,0 +1,522 @@
+basePath: /api/v1
+definitions:
+  dto.CreateCompanyRequest:
+    properties:
+      company_name:
+        type: string
+      company_type:
+        type: string
+      description:
+        type: string
+    type: object
+  dto.CreateJobRequest:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      job_type:
+        type: string
+      location:
+        type: string
+      salary:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - admin
+        - employer
+        - jobseeker
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - role
+    type: object
+  dto.UpdateApplicationRequest:
+    properties:
+      status:
+        type: string
+    type: object
+  dto.UpdateCompanyRequest:
+    properties:
+      company_name:
+        type: string
+      company_type:
+        type: string
+      description:
+        type: string
+    type: object
+  dto.UpdateJobRequest:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      job_type:
+        type: string
+      location:
+        type: string
+      salary:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: WorkHub Final Project API
+  title: WorkHub API
+  version: "1.0"
+paths:
+  /admin/companies/{id}/approve:
+    patch:
+      description: Admin approve company
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Approve company
+      tags:
+      - Admin
+  /admin/companies/{id}/reject:
+    patch:
+      description: Admin reject company
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reject company
+      tags:
+      - Admin
+  /admin/companies/pending:
+    get:
+      description: Admin get pending companies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get pending companies
+      tags:
+      - Admin
+  /admin/reports:
+    get:
+      description: Admin dashboard analytics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get dashboard report
+      tags:
+      - Admin
+  /applications/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Employer accept/reject applicant
+      parameters:
+      - description: Application ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateApplicationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update application status
+      tags:
+      - Applications
+  /applications/me:
+    get:
+      description: Jobseeker get own applications
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get my applications
+      tags:
+      - Applications
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login and get JWT token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register new user
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register user
+      tags:
+      - Auth
+  /companies:
+    post:
+      consumes:
+      - application/json
+      description: Employer create company profile
+      parameters:
+      - description: Create Company
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create company
+      tags:
+      - Companies
+    put:
+      consumes:
+      - application/json
+      description: Employer update company
+      parameters:
+      - description: Update Company
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update company
+      tags:
+      - Companies
+  /companies/me:
+    get:
+      description: Employer get own company
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get my company
+      tags:
+      - Companies
+  /jobs:
+    get:
+      description: Public get all jobs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all jobs
+      tags:
+      - Jobs
+    post:
+      consumes:
+      - application/json
+      description: Employer create new job
+      parameters:
+      - description: Create Job
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateJobRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create job
+      tags:
+      - Jobs
+  /jobs/{id}:
+    delete:
+      description: Employer delete own job
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete job
+      tags:
+      - Jobs
+    get:
+      description: Get job by ID
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get job detail
+      tags:
+      - Jobs
+    put:
+      consumes:
+      - application/json
+      description: Employer update own job
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Job
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateJobRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update job
+      tags:
+      - Jobs
+  /jobs/{id}/applications:
+    get:
+      description: Employer get applicants
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get job applications
+      tags:
+      - Applications
+  /jobs/{id}/apply:
+    post:
+      description: Jobseeker apply job
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Apply to job
+      tags:
+      - Applications
+  /jobs/my:
+    get:
+      description: Employer get own jobs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get my jobs
+      tags:
+      - Jobs
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

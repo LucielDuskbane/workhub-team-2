@@ -23,7 +23,8 @@ func (r *JobRepository) FindAll() (
 ) {
 	var jobs []models.Job
 
-	err := config.DB.Find(&jobs).Error
+	err :=
+		config.DB.Find(&jobs).Error
 
 	return jobs, err
 }
@@ -40,6 +41,22 @@ func (r *JobRepository) FindByID(
 	return &job, err
 }
 
+func (r *JobRepository) FindByCompanyID(
+	companyID uint,
+) ([]models.Job, error) {
+
+	var jobs []models.Job
+
+	err := config.DB.
+		Where(
+			"company_id = ?",
+			companyID,
+		).
+		Find(&jobs).Error
+
+	return jobs, err
+}
+
 func (r *JobRepository) Update(
 	job *models.Job,
 ) error {
@@ -50,6 +67,9 @@ func (r *JobRepository) Delete(
 	id uint,
 ) error {
 	return config.DB.
-		Delete(&models.Job{}, id).
+		Delete(
+			&models.Job{},
+			id,
+		).
 		Error
 }

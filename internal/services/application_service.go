@@ -6,6 +6,7 @@ import (
 	"workhub/internal/dto"
 	"workhub/internal/models"
 	"workhub/internal/repositories"
+	"workhub/internal/utils"
 )
 
 type ApplicationService struct {
@@ -72,7 +73,39 @@ func (s *ApplicationService) GetMyApplications(
 
 func (s *ApplicationService) GetJobApplications(
 	jobID uint,
+	userID uint,
 ) ([]models.Application, error) {
+
+	company, err :=
+		s.companyRepo.
+			GetByUserID(userID)
+
+	if err != nil {
+		return nil,
+			errors.New(
+				"company not found",
+			)
+	}
+
+	job, err :=
+		s.jobRepo.
+			FindByID(jobID)
+
+	if err != nil {
+		return nil,
+			errors.New(
+				"job not found",
+			)
+	}
+
+	if job.CompanyID !=
+		company.ID {
+
+		return nil,
+			errors.New(
+				"forbidden access",
+			)
+	}
 
 	return s.applicationRepo.
 		GetByJobID(jobID)
@@ -80,11 +113,23 @@ func (s *ApplicationService) GetJobApplications(
 
 func (s *ApplicationService) UpdateApplicationStatus(
 	id uint,
+	userID uint,
 	req dto.UpdateApplicationRequest,
 ) error {
 
+	company, err :=
+		s.companyRepo.
+			GetByUserID(userID)
+
+	if err != nil {
+		return errors.New(
+			"company not found",
+		)
+	}
+
 	application, err :=
-		s.applicationRepo.GetByID(id)
+		s.applicationRepo.
+			GetByID(id)
 
 	if err != nil {
 		return errors.New(
@@ -92,9 +137,66 @@ func (s *ApplicationService) UpdateApplicationStatus(
 		)
 	}
 
+	job, err :=
+		s.jobRepo.
+			FindByID(
+				application.JobID,
+			)
+
+	if err != nil {
+		return errors.New(
+			"job not found",
+		)
+	}
+
+	if job.CompanyID !=
+		company.ID {
+
+		return errors.New(
+			"forbidden access",
+		)
+	}
+
 	application.Status =
 		req.Status
 
-	return s.applicationRepo.
+	err = s.applicationRepo.
 		Update(application)
+
+	if err != nil {
+		return err
+	}
+
+	// Send email if accepted
+	if req.Status ==
+		"accepted" {
+
+		userRepo :=
+			repositories.
+				NewUserRepository()
+
+		user, err :=
+			userRepo.FindByID(
+				application.
+					JobseekerID,
+			)
+
+		if err != nil {
+			return err
+		}
+
+		err =
+			utils.SendEmail(
+				user.Email,
+				user.Name,
+				"Job Application Accepted",
+				"<h1>Congratulations!</h1><p>Your application has been accepted.</p>",
+			)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

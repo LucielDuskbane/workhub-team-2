@@ -14,8 +14,7 @@ type JobService struct {
 
 func NewJobService() *JobService {
 	return &JobService{
-		jobRepo: repositories.NewJobRepository(),
-
+		jobRepo:     repositories.NewJobRepository(),
 		companyRepo: repositories.NewCompanyRepository(),
 	}
 }
@@ -26,8 +25,7 @@ func (s *JobService) CreateJob(
 ) error {
 
 	company, err :=
-		s.companyRepo.
-			GetByUserID(userID)
+		s.companyRepo.GetByUserID(userID)
 
 	if err != nil {
 		return errors.New(
@@ -54,9 +52,7 @@ func (s *JobService) CreateJob(
 		Status:      "open",
 	}
 
-	return s.jobRepo.Create(
-		&job,
-	)
+	return s.jobRepo.Create(&job)
 }
 
 func (s *JobService) GetAllJobs() (
@@ -70,4 +66,112 @@ func (s *JobService) GetJobByID(
 	id uint,
 ) (*models.Job, error) {
 	return s.jobRepo.FindByID(id)
+}
+
+func (s *JobService) GetMyJobs(
+	userID uint,
+) ([]models.Job, error) {
+
+	company, err :=
+		s.companyRepo.
+			GetByUserID(userID)
+
+	if err != nil {
+		return nil,
+			errors.New(
+				"company not found",
+			)
+	}
+
+	jobs, err :=
+		s.jobRepo.FindByCompanyID(
+			company.ID,
+		)
+
+	return jobs, err
+}
+
+func (s *JobService) UpdateJob(
+	userID uint,
+	jobID uint,
+	req dto.UpdateJobRequest,
+) error {
+
+	company, err :=
+		s.companyRepo.
+			GetByUserID(userID)
+
+	if err != nil {
+		return errors.New(
+			"company not found",
+		)
+	}
+
+	job, err :=
+		s.jobRepo.FindByID(jobID)
+
+	if err != nil {
+		return errors.New(
+			"job not found",
+		)
+	}
+
+	if job.CompanyID !=
+		company.ID {
+
+		return errors.New(
+			"forbidden access",
+		)
+	}
+
+	job.Title = req.Title
+	job.Description =
+		req.Description
+	job.Category =
+		req.Category
+	job.Salary =
+		req.Salary
+	job.Location =
+		req.Location
+	job.JobType =
+		req.JobType
+	job.Status =
+		req.Status
+
+	return s.jobRepo.Update(job)
+}
+
+func (s *JobService) DeleteJob(
+	userID uint,
+	jobID uint,
+) error {
+
+	company, err :=
+		s.companyRepo.
+			GetByUserID(userID)
+
+	if err != nil {
+		return errors.New(
+			"company not found",
+		)
+	}
+
+	job, err :=
+		s.jobRepo.FindByID(jobID)
+
+	if err != nil {
+		return errors.New(
+			"job not found",
+		)
+	}
+
+	if job.CompanyID !=
+		company.ID {
+
+		return errors.New(
+			"forbidden access",
+		)
+	}
+
+	return s.jobRepo.Delete(jobID)
 }

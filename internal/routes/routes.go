@@ -29,6 +29,9 @@ func SetupRoutes(r *gin.Engine) {
 
 	api := r.Group("/api/v1")
 	{
+		// ======================
+		// AUTH
+		// ======================
 		auth := api.Group("/auth")
 		{
 			auth.POST(
@@ -42,6 +45,9 @@ func SetupRoutes(r *gin.Engine) {
 			)
 		}
 
+		// ======================
+		// PROFILE
+		// ======================
 		protected := api.Group("/")
 		protected.Use(
 			middleware.AuthMiddleware(),
@@ -54,7 +60,12 @@ func SetupRoutes(r *gin.Engine) {
 			)
 		}
 
-		company := api.Group("/companies")
+		// ======================
+		// COMPANY
+		// ======================
+		company := api.Group(
+			"/companies",
+		)
 
 		company.Use(
 			middleware.AuthMiddleware(),
@@ -80,8 +91,12 @@ func SetupRoutes(r *gin.Engine) {
 			)
 		}
 
+		// ======================
+		// JOBS
+		// ======================
 		jobs := api.Group("/jobs")
 		{
+			// Public
 			jobs.GET(
 				"",
 				jobHandler.GetAllJobs,
@@ -92,6 +107,7 @@ func SetupRoutes(r *gin.Engine) {
 				jobHandler.GetJobByID,
 			)
 
+			// Employer only
 			jobs.POST(
 				"",
 				middleware.AuthMiddleware(),
@@ -101,6 +117,34 @@ func SetupRoutes(r *gin.Engine) {
 				jobHandler.CreateJob,
 			)
 
+			jobs.GET(
+				"/my",
+				middleware.AuthMiddleware(),
+				middleware.RoleMiddleware(
+					"employer",
+				),
+				jobHandler.GetMyJobs,
+			)
+
+			jobs.PUT(
+				"/:id",
+				middleware.AuthMiddleware(),
+				middleware.RoleMiddleware(
+					"employer",
+				),
+				jobHandler.UpdateJob,
+			)
+
+			jobs.DELETE(
+				"/:id",
+				middleware.AuthMiddleware(),
+				middleware.RoleMiddleware(
+					"employer",
+				),
+				jobHandler.DeleteJob,
+			)
+
+			// Jobseeker apply
 			jobs.POST(
 				"/:id/apply",
 				middleware.AuthMiddleware(),
@@ -110,6 +154,7 @@ func SetupRoutes(r *gin.Engine) {
 				applicationHandler.ApplyJob,
 			)
 
+			// Employer lihat applicant
 			jobs.GET(
 				"/:id/applications",
 				middleware.AuthMiddleware(),
@@ -121,15 +166,19 @@ func SetupRoutes(r *gin.Engine) {
 			)
 		}
 
+		// ======================
+		// APPLICATIONS
+		// ======================
 		applications :=
-			api.Group("/applications")
+			api.Group(
+				"/applications",
+			)
 
 		applications.Use(
 			middleware.AuthMiddleware(),
 		)
 
 		{
-
 			applications.GET(
 				"/me",
 				middleware.RoleMiddleware(
@@ -149,7 +198,12 @@ func SetupRoutes(r *gin.Engine) {
 			)
 		}
 
-		admin := api.Group("/admin")
+		// ======================
+		// ADMIN
+		// ======================
+		admin := api.Group(
+			"/admin",
+		)
 
 		admin.Use(
 			middleware.AuthMiddleware(),

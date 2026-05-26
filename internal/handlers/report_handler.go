@@ -18,6 +18,14 @@ func NewReportHandler() *ReportHandler {
 	}
 }
 
+// Get Dashboard Report godoc
+// @Summary Get dashboard report
+// @Description Admin dashboard analytics
+// @Tags Admin
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /admin/reports [get]
 func (h *ReportHandler) GetDashboardReport(
 	c *gin.Context,
 ) {

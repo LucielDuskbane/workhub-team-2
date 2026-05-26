@@ -20,6 +20,16 @@ func NewCompanyHandler() *CompanyHandler {
 	}
 }
 
+// Create Company godoc
+// @Summary Create company
+// @Description Employer create company profile
+// @Tags Companies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body dto.CreateCompanyRequest true "Create Company"
+// @Success 201 {object} map[string]interface{}
+// @Router /companies [post]
 func (h *CompanyHandler) CreateCompany(
 	c *gin.Context,
 ) {
@@ -61,6 +71,14 @@ func (h *CompanyHandler) CreateCompany(
 	)
 }
 
+// Get My Company godoc
+// @Summary Get my company
+// @Description Employer get own company
+// @Tags Companies
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /companies/me [get]
 func (h *CompanyHandler) GetMyCompany(
 	c *gin.Context,
 ) {
@@ -89,6 +107,16 @@ func (h *CompanyHandler) GetMyCompany(
 	)
 }
 
+// Update Company godoc
+// @Summary Update company
+// @Description Employer update company
+// @Tags Companies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body dto.UpdateCompanyRequest true "Update Company"
+// @Success 200 {object} map[string]interface{}
+// @Router /companies [put]
 func (h *CompanyHandler) UpdateCompany(
 	c *gin.Context,
 ) {
@@ -130,6 +158,14 @@ func (h *CompanyHandler) UpdateCompany(
 	)
 }
 
+// Get Pending Companies godoc
+// @Summary Get pending companies
+// @Description Admin get pending companies
+// @Tags Admin
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /admin/companies/pending [get]
 func (h *CompanyHandler) GetPendingCompanies(
 	c *gin.Context,
 ) {
@@ -154,6 +190,15 @@ func (h *CompanyHandler) GetPendingCompanies(
 	)
 }
 
+// Approve Company godoc
+// @Summary Approve company
+// @Description Admin approve company
+// @Tags Admin
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Company ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /admin/companies/{id}/approve [patch]
 func (h *CompanyHandler) ApproveCompany(
 	c *gin.Context,
 ) {
@@ -197,6 +242,15 @@ func (h *CompanyHandler) ApproveCompany(
 	)
 }
 
+// Reject Company godoc
+// @Summary Reject company
+// @Description Admin reject company
+// @Tags Admin
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Company ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /admin/companies/{id}/reject [patch]
 func (h *CompanyHandler) RejectCompany(
 	c *gin.Context,
 ) {
