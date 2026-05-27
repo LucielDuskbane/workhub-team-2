@@ -26,27 +26,11 @@ func NewReportHandler() *ReportHandler {
 // @Security BearerAuth
 // @Success 200 {object} map[string]interface{}
 // @Router /admin/reports [get]
-func (h *ReportHandler) GetDashboardReport(
-	c *gin.Context,
-) {
-
-	report, err :=
-		h.reportService.
-			GetDashboardReport()
-
+func (h *ReportHandler) GetDashboardReport(c *gin.Context) {
+	report, err := h.reportService.GetDashboardReport()
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusInternalServerError,
-			"Failed get report",
-		)
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed get report")
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		report,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", report)
 }

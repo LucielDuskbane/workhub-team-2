@@ -2,12 +2,7 @@ package utils
 
 import "github.com/gin-gonic/gin"
 
-func SuccessResponse(
-	c *gin.Context,
-	status int,
-	message string,
-	data interface{},
-) {
+func SuccessResponse(c *gin.Context, status int, message string, data interface{}) {
 	c.JSON(status, gin.H{
 		"success": true,
 		"message": message,
@@ -15,11 +10,7 @@ func SuccessResponse(
 	})
 }
 
-func ErrorResponse(
-	c *gin.Context,
-	status int,
-	message string,
-) {
+func ErrorResponse(c *gin.Context, status int, message string) {
 	c.JSON(status, gin.H{
 		"success": false,
 		"message": message,

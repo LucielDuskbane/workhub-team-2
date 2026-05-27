@@ -12,10 +12,7 @@ func NewTestHandler() *TestHandler {
 	return &TestHandler{}
 }
 
-func (h *TestHandler) Profile(
-	c *gin.Context,
-) {
-
+func (h *TestHandler) Profile(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	role, _ := c.Get("role")
 

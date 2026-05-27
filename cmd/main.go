@@ -23,11 +23,7 @@ import (
 // @in header
 // @name Authorization
 func main() {
-
-	// Load env
 	config.LoadEnv()
-
-	// Connect DB
 	config.ConnectDatabase()
 
 	// Migration
@@ -37,7 +33,6 @@ func main() {
 		&models.Job{},
 		&models.Application{},
 	)
-
 	if err != nil {
 		panic("Failed migration")
 	}
@@ -52,23 +47,13 @@ func main() {
 	})
 
 	// Swagger
-	r.GET(
-		"/swagger/*any",
-		ginSwagger.WrapHandler(
-			swaggerFiles.Handler,
-		),
-	)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routes
 	routes.SetupRoutes(r)
-
-	port := os.Getenv(
-		"APP_PORT",
-	)
-
+	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "8080"
 	}
-
 	r.Run(":" + port)
 }

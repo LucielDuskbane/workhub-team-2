@@ -30,45 +30,19 @@ func NewCompanyHandler() *CompanyHandler {
 // @Param request body dto.CreateCompanyRequest true "Create Company"
 // @Success 201 {object} map[string]interface{}
 // @Router /companies [post]
-func (h *CompanyHandler) CreateCompany(
-	c *gin.Context,
-) {
+func (h *CompanyHandler) CreateCompany(c *gin.Context) {
 	var req dto.CreateCompanyRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
-
-	err := h.companyService.
-		CreateCompany(
-			userID,
-			req,
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	userID := c.MustGet("user_id").(uint)
+	if err := h.companyService.CreateCompany(userID, req); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusCreated,
-		"Company created successfully",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusCreated, "Company created successfully", nil)
 }
 
 // Get My Company godoc
@@ -79,32 +53,15 @@ func (h *CompanyHandler) CreateCompany(
 // @Security BearerAuth
 // @Success 200 {object} map[string]interface{}
 // @Router /companies/me [get]
-func (h *CompanyHandler) GetMyCompany(
-	c *gin.Context,
-) {
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
+func (h *CompanyHandler) GetMyCompany(c *gin.Context) {
+	userID := c.MustGet("user_id").(uint)
 
-	company, err :=
-		h.companyService.
-			GetMyCompany(userID)
-
+	company, err := h.companyService.GetMyCompany(userID)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusNotFound,
-			"Company not found",
-		)
+		utils.ErrorResponse(c, http.StatusNotFound, "Company not found")
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		company,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", company)
 }
 
 // Update Company godoc
@@ -117,45 +74,19 @@ func (h *CompanyHandler) GetMyCompany(
 // @Param request body dto.UpdateCompanyRequest true "Update Company"
 // @Success 200 {object} map[string]interface{}
 // @Router /companies [put]
-func (h *CompanyHandler) UpdateCompany(
-	c *gin.Context,
-) {
+func (h *CompanyHandler) UpdateCompany(c *gin.Context) {
 	var req dto.UpdateCompanyRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
-
-	err := h.companyService.
-		UpdateCompany(
-			userID,
-			req,
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	userID := c.MustGet("user_id").(uint)
+	if err := h.companyService.UpdateCompany(userID, req); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Company updated successfully",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Company updated successfully", nil)
 }
 
 // Get Pending Companies godoc
@@ -166,28 +97,13 @@ func (h *CompanyHandler) UpdateCompany(
 // @Security BearerAuth
 // @Success 200 {object} map[string]interface{}
 // @Router /admin/companies/pending [get]
-func (h *CompanyHandler) GetPendingCompanies(
-	c *gin.Context,
-) {
-	companies, err :=
-		h.companyService.
-			GetPendingCompanies()
-
+func (h *CompanyHandler) GetPendingCompanies(c *gin.Context) {
+	companies, err := h.companyService.GetPendingCompanies()
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusInternalServerError,
-			"Failed get companies",
-		)
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed get companies")
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		companies,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", companies)
 }
 
 // Approve Company godoc
@@ -199,47 +115,20 @@ func (h *CompanyHandler) GetPendingCompanies(
 // @Param id path int true "Company ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /admin/companies/{id}/approve [patch]
-func (h *CompanyHandler) ApproveCompany(
-	c *gin.Context,
-) {
+func (h *CompanyHandler) ApproveCompany(c *gin.Context) {
 	idParam := c.Param("id")
 
-	id, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
-	err = h.companyService.
-		ApproveCompany(
-			uint(id),
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	if err := h.companyService.ApproveCompany(uint(id)); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Company approved",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Company approved", nil)
 }
 
 // Reject Company godoc
@@ -251,45 +140,18 @@ func (h *CompanyHandler) ApproveCompany(
 // @Param id path int true "Company ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /admin/companies/{id}/reject [patch]
-func (h *CompanyHandler) RejectCompany(
-	c *gin.Context,
-) {
+func (h *CompanyHandler) RejectCompany(c *gin.Context) {
 	idParam := c.Param("id")
 
-	id, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
-	err = h.companyService.
-		RejectCompany(
-			uint(id),
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	if err := h.companyService.RejectCompany(uint(id)); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Company rejected",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Company rejected", nil)
 }

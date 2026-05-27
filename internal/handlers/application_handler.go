@@ -29,53 +29,22 @@ func NewApplicationHandler() *ApplicationHandler {
 // @Param id path int true "Job ID"
 // @Success 201 {object} map[string]interface{}
 // @Router /jobs/{id}/apply [post]
-func (h *ApplicationHandler) ApplyJob(
-	c *gin.Context,
-) {
-
+func (h *ApplicationHandler) ApplyJob(c *gin.Context) {
 	idParam := c.Param("id")
 
-	jobID, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	jobID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid job ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid job ID")
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
+	userID := c.MustGet("user_id").(uint)
 
-	err = h.applicationService.
-		ApplyJob(
-			uint(jobID),
-			userID,
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	if err := h.applicationService.ApplyJob(uint(jobID), userID); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusCreated,
-		"Application submitted",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusCreated, "Application submitted", nil)
 }
 
 // Get My Applications godoc
@@ -86,35 +55,15 @@ func (h *ApplicationHandler) ApplyJob(
 // @Security BearerAuth
 // @Success 200 {object} map[string]interface{}
 // @Router /applications/me [get]
-func (h *ApplicationHandler) GetMyApplications(
-	c *gin.Context,
-) {
+func (h *ApplicationHandler) GetMyApplications(c *gin.Context) {
+	userID := c.MustGet("user_id").(uint)
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
-
-	applications, err :=
-		h.applicationService.
-			GetMyApplications(
-				userID,
-			)
-
+	applications, err := h.applicationService.GetMyApplications(userID)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusInternalServerError,
-			"Failed get applications",
-		)
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed get applications")
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		applications,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", applications)
 }
 
 // Get Job Applications godoc
@@ -126,54 +75,23 @@ func (h *ApplicationHandler) GetMyApplications(
 // @Param id path int true "Job ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /jobs/{id}/applications [get]
-func (h *ApplicationHandler) GetJobApplications(
-	c *gin.Context,
-) {
-
+func (h *ApplicationHandler) GetJobApplications(c *gin.Context) {
 	idParam := c.Param("id")
 
-	jobID, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	jobID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid job ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid job ID")
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
+	userID := c.MustGet("user_id").(uint)
 
-	applications, err :=
-		h.applicationService.
-			GetJobApplications(
-				uint(jobID),
-				userID,
-			)
-
+	applications, err := h.applicationService.GetJobApplications(uint(jobID), userID)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusForbidden,
-			err.Error(),
-		)
+		utils.ErrorResponse(c, http.StatusForbidden, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		applications,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", applications)
 }
 
 // Update Application Status godoc
@@ -187,66 +105,26 @@ func (h *ApplicationHandler) GetJobApplications(
 // @Param request body dto.UpdateApplicationRequest true "Update Status"
 // @Success 200 {object} map[string]interface{}
 // @Router /applications/{id} [patch]
-func (h *ApplicationHandler) UpdateApplicationStatus(
-	c *gin.Context,
-) {
-
+func (h *ApplicationHandler) UpdateApplicationStatus(c *gin.Context) {
 	idParam := c.Param("id")
 
-	id, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
 	var req dto.UpdateApplicationRequest
-
-	if err := c.ShouldBindJSON(
-		&req,
-	); err != nil {
-
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
+	userID := c.MustGet("user_id").(uint)
 
-	err = h.applicationService.
-		UpdateApplicationStatus(
-			uint(id),
-			userID,
-			req,
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusForbidden,
-			err.Error(),
-		)
+	if err := h.applicationService.UpdateApplicationStatus(uint(id), userID, req); err != nil {
+		utils.ErrorResponse(c, http.StatusForbidden, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Application updated",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Application updated", nil)
 }

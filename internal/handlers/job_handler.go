@@ -31,50 +31,19 @@ func NewJobHandler() *JobHandler {
 // @Success 201 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Router /jobs [post]
-func (h *JobHandler) CreateJob(
-	c *gin.Context,
-) {
-
+func (h *JobHandler) CreateJob(c *gin.Context) {
 	var req dto.CreateJobRequest
-
-	if err :=
-		c.ShouldBindJSON(
-			&req,
-		); err != nil {
-
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
-
-	err := h.jobService.
-		CreateJob(
-			userID,
-			req,
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	userID := c.MustGet("user_id").(uint)
+	if err := h.jobService.CreateJob(userID, req); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusCreated,
-		"Job created successfully",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusCreated, "Job created successfully", nil)
 }
 
 // Get All Jobs godoc
@@ -84,29 +53,13 @@ func (h *JobHandler) CreateJob(
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /jobs [get]
-func (h *JobHandler) GetAllJobs(
-	c *gin.Context,
-) {
-
-	jobs, err :=
-		h.jobService.
-			GetAllJobs()
-
+func (h *JobHandler) GetAllJobs(c *gin.Context) {
+	jobs, err := h.jobService.GetAllJobs()
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusInternalServerError,
-			"Failed get jobs",
-		)
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed get jobs")
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		jobs,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", jobs)
 }
 
 // Get Job By ID godoc
@@ -118,49 +71,21 @@ func (h *JobHandler) GetAllJobs(
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Router /jobs/{id} [get]
-func (h *JobHandler) GetJobByID(
-	c *gin.Context,
-) {
-
+func (h *JobHandler) GetJobByID(c *gin.Context) {
 	idParam := c.Param("id")
 
-	id, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
-	job, err :=
-		h.jobService.
-			GetJobByID(
-				uint(id),
-			)
-
+	job, err := h.jobService.GetJobByID(uint(id))
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusNotFound,
-			"Job not found",
-		)
+		utils.ErrorResponse(c, http.StatusNotFound, "Job not found")
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		job,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", job)
 }
 
 // Get My Jobs godoc
@@ -171,35 +96,15 @@ func (h *JobHandler) GetJobByID(
 // @Security BearerAuth
 // @Success 200 {object} map[string]interface{}
 // @Router /jobs/my [get]
-func (h *JobHandler) GetMyJobs(
-	c *gin.Context,
-) {
+func (h *JobHandler) GetMyJobs(c *gin.Context) {
+	userID := c.MustGet("user_id").(uint)
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
-
-	jobs, err :=
-		h.jobService.
-			GetMyJobs(
-				userID,
-			)
-
+	jobs, err := h.jobService.GetMyJobs(userID)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Success",
-		jobs,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Success", jobs)
 }
 
 // Update Job godoc
@@ -213,69 +118,28 @@ func (h *JobHandler) GetMyJobs(
 // @Param request body dto.UpdateJobRequest true "Update Job"
 // @Success 200 {object} map[string]interface{}
 // @Router /jobs/{id} [put]
-func (h *JobHandler) UpdateJob(
-	c *gin.Context,
-) {
-
+func (h *JobHandler) UpdateJob(c *gin.Context) {
 	idParam := c.Param("id")
 
-	jobID, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	jobID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
 	var req dto.UpdateJobRequest
-
-	if err :=
-		c.ShouldBindJSON(
-			&req,
-		); err != nil {
-
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			err.Error(),
-		)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
+	userID := c.MustGet("user_id").(uint)
 
-	err = h.jobService.
-		UpdateJob(
-			userID,
-			uint(jobID),
-			req,
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusForbidden,
-			err.Error(),
-		)
+	if err := h.jobService.UpdateJob(userID, uint(jobID), req); err != nil {
+		utils.ErrorResponse(c, http.StatusForbidden, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Job updated successfully",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Job updated successfully", nil)
 }
 
 // Delete Job godoc
@@ -287,51 +151,20 @@ func (h *JobHandler) UpdateJob(
 // @Param id path int true "Job ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /jobs/{id} [delete]
-func (h *JobHandler) DeleteJob(
-	c *gin.Context,
-) {
-
+func (h *JobHandler) DeleteJob(c *gin.Context) {
 	idParam := c.Param("id")
 
-	jobID, err :=
-		strconv.ParseUint(
-			idParam,
-			10,
-			32,
-		)
-
+	jobID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusBadRequest,
-			"Invalid ID",
-		)
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
-	userID := c.MustGet(
-		"user_id",
-	).(uint)
+	userID := c.MustGet("user_id").(uint)
 
-	err = h.jobService.
-		DeleteJob(
-			userID,
-			uint(jobID),
-		)
-
-	if err != nil {
-		utils.ErrorResponse(
-			c,
-			http.StatusForbidden,
-			err.Error(),
-		)
+	if err := h.jobService.DeleteJob(userID, uint(jobID)); err != nil {
+		utils.ErrorResponse(c, http.StatusForbidden, err.Error())
 		return
 	}
-
-	utils.SuccessResponse(
-		c,
-		http.StatusOK,
-		"Job deleted successfully",
-		nil,
-	)
+	utils.SuccessResponse(c, http.StatusOK, "Job deleted successfully", nil)
 }
