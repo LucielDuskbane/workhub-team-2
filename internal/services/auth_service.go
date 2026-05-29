@@ -30,9 +30,9 @@ func (s *AuthService) Register(req dto.RegisterRequest) error {
 		return err
 	}
 
-	// if req.Role == "admin" {
-	// 	return errors.New("cannot register as admin")
-	// }
+	if req.Role == "admin" {
+		return errors.New("cannot register as admin")
+	}
 
 	user := models.User{
 		Name:     req.Name,
