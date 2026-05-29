@@ -86,7 +86,7 @@ definitions:
       title:
         type: string
     type: object
-host: localhost:8080
+host: workhub-team-2-production.up.railway.app
 info:
   contact: {}
   description: WorkHub Final Project API

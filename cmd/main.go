@@ -16,7 +16,7 @@ import (
 // @title WorkHub API
 // @version 1.0
 // @description WorkHub Final Project API
-// @host localhost:8080
+// @host workhub-team-2-production.up.railway.app
 // @BasePath /api/v1
 
 // @securityDefinitions.apikey BearerAuth
@@ -51,9 +51,14 @@ func main() {
 
 	// Routes
 	routes.SetupRoutes(r)
-	port := os.Getenv("APP_PORT")
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = os.Getenv("APP_PORT")
+	}
 	if port == "" {
 		port = "8080"
 	}
+
 	r.Run(":" + port)
 }
